@@ -111,7 +111,7 @@ def main():
     for c in course_hashes:
         for s in student_hashes:
             course_match[(c, s)] = model.NewBoolVar(
-                'course%iis assigned to %i' % (c, s))
+                'course %i is assigned to %i' % (c, s))
     # Add constraints
     for c in course_hashes:
         for i in range(len(student_hashes)):
@@ -125,7 +125,7 @@ def main():
                 model.Add(course_match[(c, student_hashes[i])] == 0)
 
     for s in students:
-        for period in ["P1", "P2", "P3", "P4"]:
+        for period in ["P1", "P2", "P3", "P4"]:  # TODO: Add period class
             okay_in_period_for_student = []
             for c in s.get_class_preferences():
                 if c.get_period() == period:
