@@ -31,14 +31,31 @@ class Student:
         self.classes.remove(old_class)
 
     def get_value(self):
-        return len(self.classes)
+        total_value = 0
+        for class_, valuation in self.class_preferences:
+            if class_ in self.classes:
+                total_value += valuation
+        return total_value
 
-    def get_value_of_other(self, other_courses):
-        value = 0
-        for course in other_courses:
-            if course in self.class_preferences:
-                value += 1
-        return value
+    def get_value_of_course(self, course):
+        for class_, valuation in self.class_preferences:
+            if course == class_:
+                return valuation
+        return 0
+
+    def EF1(self, other_courses):
+        best_to_steal = 0
+        best_course = None
+        value_other = 0
+        for other_course in other_courses:
+            for class_, valuation in self.class_preferences:
+                if other_course == class_:
+                    value_other += valuation
+                    if valuation > best_to_steal:
+                        best_to_steal = valuation
+                        best_course = other_course
+        my_value = self.get_value()
+        return (my_value + best_to_steal >= value_other - best_to_steal, best_course)
 
     def __hash__(self):
         return hash((self.first, self.last))
@@ -88,9 +105,10 @@ def read_data(filename):
         for c in range(len(row)):
             key = data.columns[c]
             try:
-                val = float(row[c])
-                if key.startswith("P") and not math.isnan(val) and val < 2:
-                    course_preferences.append(Course(key.split(" ", 1)))
+                val = int(row[c])
+                if key.startswith("P") and not math.isnan(val):  # and val < 5:
+                    course_preferences.append(
+                        (Course(key.split(" ", 1)), 5-val))
             except:
                 pass
         students.append(Student(first, last, course_preferences))
@@ -108,6 +126,7 @@ def main():
     model = cp_model.CpModel()
     course_match = {}
     # Set up model
+
     for c in course_hashes:
         for s in student_hashes:
             course_match[(c, s)] = model.NewBoolVar(
@@ -118,27 +137,33 @@ def main():
             s = students[i]
             found = False
             for class_preference in s.get_class_preferences():
-                if c == hash(class_preference):
+                if c == hash(class_preference[0]):
                     found = True
                     break
             if not found:
                 model.Add(course_match[(c, student_hashes[i])] == 0)
 
     for s in students:
-        for period in ["P1", "P2", "P3", "P4"]:  # TODO: Add period class
+        for period in ["P1", "P2", "P3", "P4"]:
             okay_in_period_for_student = []
             for c in s.get_class_preferences():
-                if c.get_period() == period:
-                    okay_in_period_for_student.append(hash(c))
+                if c[0].get_period() == period:
+                    okay_in_period_for_student.append(hash(c[0]))
 
             model.Add(sum(course_match[(c, hash(s))]
                           for c in okay_in_period_for_student) <= 1)
+
+    student_values = {}
+    for s in students:
+        for c in courses:
+            student_values[(hash(c), hash(s))] = s.get_value_of_course(c)
+
     model.Maximize(
-        sum(course_match[(c, s)] for c in course_hashes
+        sum(course_match[(c, s)] * student_values[(c, s)] for c in course_hashes
             for s in student_hashes))
 
     for c in course_hashes:
-        model.Add(sum(course_match[(c, s)] for s in student_hashes) <= 8)
+        model.Add(sum(course_match[(c, s)] for s in student_hashes) <= 5)
         # model.Add(sum(course_match[(c, s)] for s in student_hashes) >= 7)
 
     solver = cp_model.CpSolver()
@@ -167,22 +192,25 @@ def main():
             for j in range(i + 1, len(students)):
                 student1 = students[i]
                 student2 = students[j]
-                if student1.get_value() < student1.get_value_of_other(student2.get_classes()) - 1:
-                    for course in student2.get_classes():
-                        if course in student1.get_class_preferences():
-                            student1.add_class(course)
-                            student2.remove_class(course)
-                            changed = True
-                            print("made transfer 1")
-                            break
-                if student2.get_value() < student2.get_value_of_other(student1.get_classes()) - 1:
-                    for course in student1.get_classes():
-                        if course in student2.get_class_preferences():
-                            student2.add_class(course)
-                            student1.remove_class(course)
-                            changed = True
-                            print("Made transfer 2")
-                            break
+                student1_envy, best_course1 = student1.EF1(
+                    student2.get_classes())
+                student2_envy, best_course2 = student2.EF1(
+                    student1.get_classes())
+
+                if not student1_envy:
+                    student1.add_class(best_course1)
+                    student2.remove_class(best_course1)
+                    ut_loss = student2.get_value_of_course(
+                        best_course1) - student1.get_value_of_course(best_course1)
+                    print("made, ut lost", ut_loss)
+                    changed = True
+                elif not student2_envy:
+                    student2.add_class(best_course2)
+                    student1.remove_class(best_course2)
+                    ut_loss = student1.get_value_of_course(
+                        best_course2) - student2.get_value_of_course(best_course2)
+                    print("made, ut lost", ut_loss)
+                    changed = True
     print('Done writing')
 
     print()
