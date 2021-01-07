@@ -1,0 +1,30 @@
+\section{Data Set, Experiments}
+\label{sec:ds}
+We investigated a data set in which 91 students expressed their preferences over classes for a day in school in which, rather than going to class, students taught classes that they wanted to (classes include topics such as Board Games, Volleyball, and K-Pop Dance).  The school day was split into 4 periods (P1, P2, P3, P4) that are mutually exclusive - i.e., if Board Games and Magic are both in P1, a student can only take one of Board Games.  Students rank their top 5 choices within each period (in each period, there are 7 classes).  Thus, if Timmy is signing up for classes in P1 which include Board Games, Magic, Uno, Origami, Marvel Cinematic Universe (MCU), Zumba and Relaxation and he prefers Board Games to Magic to Uno to Origami to MCU and does not want to be in Zumba or Relaxation, he expresses his preferences as 
+
+Board Games : 1\\
+Magic : 2\\
+Uno : 3\\
+Origami : 4\\
+MCU : 5\\
+Zumba: -\\
+Relaxation: -\\
+
+The school, rather than having a number of seats per class, prefers parity in their classes.  As $\frac{1}{4}$ of students teach in a given period, we have $\approx 68 $ students per period.  Thus, as there are 7 courses per period, we want there to be 9 or 10 students per class.  As some students did not submit their preference relation, we add the weaker constraint that there can be 7-10 students per class and expect that we can create parity between classes by adding those students who did not submit their preference relation to the less-preferred classes.  
+
+We experiment with a few different utility functions, allowing the school to interview students and determine which utility function best matches the majority of students' preferences.  In particular, we consider one in which, given their preference relation, we assign 5 utility to an allocation of their first choice, 4 utility to an allocation of their second choice, 3 to their third, etc; we refer to this as vanilla utility. In addition, we consider that students preferences exponentially decrease, motivated by the thought that many students really want one class, are ok with their second class, etc.  In this case, we assign 16 utility to an allocation of their first choice, 8 to an allocation of their second choice, 4 utility to their third, etc.  Finally, as the school interviewed students and found that they were generally very happy with getting their first three choices and significantly less happy with their fourth or fifth choice, we consider one final utility function in which we assign 10 utility to the first choice, 9 to the second, 8 to the third, 2 to the fourth and 1 to the fifth.  
+
+To solve for the optimal allocation, we solve the LP given below, with $S$ the set of students, $C$ the set of classes, $P_n$ the set of courses in period $n$, $T$ the period which a student teaches for, $N$ the set of periods, $u_{sc}$ the utility for a given student and class and $A_{sc}$ the allocation of student $s$ to course $c$.  
+
+
+\begin{align*}
+    Max. \quad \quad \quad \quad \quad \quad \sum_{s\in S} \sum_{c \in C} A_{sc}u_{sc} \\
+    s.t. \quad \sum_{c\in P_n} A_{sc} &= 1 \qquad \forall s \in S \qquad \forall n \in N \backslash T\\ 
+    \sum_{c\in T} A_{sc} &= 0 \qquad \forall s \in S\\ 
+    \sum_{s\in S} A_{sc} &<= 10 \qquad \forall c \in C\\
+    \sum_{s\in S} A_{sc} &>= 7 \qquad \forall c \in C\\
+\end{align*}
+
+Finally, we note that this allocation may result in envy between students, so we investigate the utility loss when we perform envy-induced transfers on the final allocation.  
+
+In particular, we transfer a course allocation from one student to another if the first student envies the second student by more than 2 courses.  As we can transfer any course from the envier to the enviee, we select that course that minimizes the utility loss when we transfer the course (of course, no course transfer will result in utility gain as we begin from a utilitarian-optimal allocation).  With vanilla utility, course allocations in the utilitarian-optimal allocation are worth 537 utility.  We made four envy-induced transfers of courses, with a total utility loss of 2, resulting in 535 utility total.  Thus, on this data set, we maintain 99.6\% of the utility while achieving an EF1 allocation.  

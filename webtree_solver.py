@@ -39,11 +39,11 @@ def get_course_weight(pos, is_exp):
         return 2**(5 - pos)
     else:
         if pos == 1:
-            return 10
+            return 5
         if pos == 2:
-            return 9
+            return 4
         if pos == 3:
-            return 7
+            return 3
         if pos == 4:
             return 2
         if pos == 5:

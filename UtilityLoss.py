@@ -16,6 +16,7 @@ items = [0, 1, 2, 3, 4]
 # Tested on 2 agents, valuations [0, 1, 2, 3], up to 7 items.  All were EF1
 # Tested on 3 agents, valuations [0, 1, 2], up to 5 items.  All were EF1
 # Tested on 3 agents, valuations [0, 1, 2, 3], up to 5 items All were EF1
+# When is leximin envy free when is it not
 
 
 def get_all_valuations_rec(num_items, so_far):
