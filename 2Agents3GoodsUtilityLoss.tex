@@ -1,0 +1,130 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{fullpage}
+\usepackage[top=2cm, bottom=4.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{lastpage}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{sectsty}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\usepackage{blindtext}
+\usepackage{amssymb}
+
+
+\usepackage{amsthm}
+
+\usepackage{mathtools}
+\sectionfont{\fontsize{15}{15}\selectfont}
+\hypersetup{%
+  colorlinks=true,
+  linkcolor=blue,
+  linkbordercolor={0 0 1}
+}
+
+ \newcommand{\mbf}[1]{{\mathbf{#1}}}
+\newcommand{\argmin}{\mathop{\arg\min}}
+\newcommand{\argmax}{\mathop{\arg\max}}
+\renewcommand\lstlistingname{Algorithm}
+\renewcommand\lstlistlistingname{Algorithms}
+\def\lstlistingautorefname{Alg.}
+
+\lstdefinestyle{Python}{
+    language        = Python,
+    frame           = lines, 
+    basicstyle      = \footnotesize,
+    keywordstyle    = \color{blue},
+    stringstyle     = \color{green},
+    commentstyle    = \color{red}\ttfamily
+}
+
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+
+% Edit these as appropriate
+\newcommand\course{CSC 383}
+\newcommand\hwnumber{2}                  
+\newcommand\NetIDa{Aidan O'Neill}           
+
+
+
+\pagestyle{fancyplain}
+\headheight 35pt
+\lhead{\NetIDa}
+\chead{\textbf{\Large Additive Valuations EF Utility Loss}}
+\rhead{\today}
+\lfoot{}
+\cfoot{}
+\rfoot{\small\thepage}
+\headsep 1.5em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\begin{document}
+Consider two agents with normalized additive preferences over three indivisible goods.  It is our goal to bound the loss of utility in an EF1 allocation when compared to a utilitarian optimal allocation.  
+We denote our agents $a_1$ and $a_2$.  Our normalization constraint is that $\sum_{g\in G} v_1(g) = \sum_{g\in G} v_2(g)$, with $G$ our set of goods and $v_1, v_2 : 2^G \rightarrow \mathbb{R}$ the valuations for agent 1 $(a_1)$ and agent 2 $(a_2)$ respectively.  $G = \{g_1, g_2, g_3 \}$.  We denote $\pi$ an allocation of goods to agents, with $\pi(1)$ the subset of goods that agent 1 receives and $\pi(2)$ the subset of goods that agent 2 receives.  
+
+
+\begin{lemma}
+The two agents having the same valuation for any object results in there existing a utilitarian optimal EF1 allocation.  
+\end{lemma}
+\begin{proof}
+WNLOG have $v_1(g_1) = v_2(g_1)$.  If $v_1(g_2) = v_2(g_2)$, by normalization we have that $v_1(g_3) = v_2(g_3)$, all preferences are identical.  Any complete allocation is therefore utilitarian optimal and we can find an EF1 complete allocation through a sliding knife procedure.  Thus, we consider the case where $v_1(g_2) \neq v_2(g_2)$.  WNLOG have $v_1(g_2) > v_2(g_2)$.  To get a utilitarian optimal solution, we allocate $g_2$ to $a_1$ and $g_3$ to $a_2$.  
+We consider three cases:
+\begin{enumerate}
+    \item Both agents prefer their bundles to that of the other.  In this case, we give $g_1$ to either agent and have an EF1 allocation, as if we remove $g_1$ we get an EF allocation.  
+    \item One agent prefers the other's bundle.  WLOG say that $a_1$ is envious of $a_2$ but not vice versa.  We give $g_1$ to $a_1$.  $a_1$ can have envy of at most one item as $|\pi(2)| = 1$  $a_2$ can have envy of at most one item as they initially preferred their own bundle, so if we remove $g_1$ from $a_1$'s bundle, $a_2$ prefers their own.    
+    \item Both agents prefer the others' bundles.  Both agents prefer the other's bundle so they swap bundles and achieve an increase in utility.  From here, neither agent is envious so we can achieve an EF1 allocation as described in (1).  
+\end{enumerate}
+
+I'm curious if we can extend this to a claim that both agents having the same valuation for an item can reduce envy while preserving utilitarian optimality. \\
+\end{proof}
+Thus, we consider the case where $\forall g \in G \; v_1(g) \neq v_2(g)$.  
+\begin{lemma}
+Each agent has at least one good that they prefer to the other agent.  
+\end{lemma}
+\begin{proof}
+We proceed by contradiction.  WLOG assume $a_1$ prefers all goods to $a_2$, that is, $\forall g \in G \; v_1(g) > v_2(g)$.  Summing, we get $\sum_{g\in G} v_1(g) > \sum_{g\in G} v_2(g)$, contradicting our normalization constraint.   
+\end{proof}
+
+Thus, of the three goods, one agent prefers one of them and the other prefers two.  For an EIT to take place, we need the agent that receives one of them to envy both of the goods the other received.  Say $a_1$ receives $g_2$ and $g_3$ and $a_2$ receives $g_1$.  Our constraints our therefore 
+\begin{align}
+    v_2(g_1) &> v_1(g_1)\\
+    v_2(g_2) &< v_1(g_2) \\
+    v_2(g_3) &< v_1(g_3) \\
+    v_2(g_2) &> v_2(g_1) \\
+    v_2(g_3) &> v_2(g_1)
+\end{align}
+Subject to these constraints, to find the maximal utility loss we wish to find 
+$$ \argmax \; min (v_1(g_2) - v_2(g_2),v_1(g_3) - v_2(g_3))  $$ 
+As we wish to maximize this expression, we want to minimize $v_2(g_2)$ and $v_2(g_3)$.  $N\coloneq\sum_{g\in G} v_1(g)$ By (4) and (5), we get that $v_2(g_1) = \frac{N}{3} - 2\delta$ and that $v_2(g_2) = v_2(g_3) = \frac{N}{3} + \delta$.  This way, the values agent 2 has for goods 2 and 3 are as small as possible while still being greater than the value for good 1.  To maximize the expression, it is clear to see that we should set $v_1(g_1)$ to 0 and thus $v_1(g_2) = v_1(g_3) = \frac{N}{2}$.  These preferences are in the table below.  
+
+  \begin{table}[hb]
+\centering
+\begin{tabular}{llll}
+\toprule
+& $g_1$ & $g_2$& $g_3$ \\
+\midrule
+Agent 1 & 0 & $\frac{N}{2}$ & $\frac{N}{2}$ \\
+\midrule
+Agent 2 & $\frac{N}{3} - 2\delta$ & $\frac{N}{3} + \delta$  & $\frac{N}{3}+\delta$\\
+\bottomrule
+\end{tabular}
+\end{table} 
+The reduction in welfare when we perform an EIT with 2 agents and 3 goods is bounded by $\frac{N}{6} - \delta$.  
+
+\end{document}
